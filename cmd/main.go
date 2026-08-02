@@ -1,16 +1,36 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
+type User struct {
+	Name  string
+	Age   int
+	Email string
+}
+
+func (u *User) getName() {
+	fmt.Println(u.Name)
+}
+
+func (u *User) getEmail() {
+	fmt.Println(u.Email)
+}
+
+func (u *User) updateAge(age int) {
+	u.Age = age
+}
 func main() {
+	user := User{
+		Name:  "Abhi",
+		Age:   24,
+		Email: "abhi@gmail.com",
+	}
 
-	nums := []int{1, 2, 3} // slice are like dynamic array (memory)
-	age := nums
+	user.getName()
+	user.getEmail()
 
-	age[0] = 24
+	fmt.Println("age is", user.Age)
+	user.updateAge(45)
 
-	fmt.Println(nums)
-	fmt.Println(age)
+	fmt.Println("after update age is", user.Age)
 }
