@@ -23,4 +23,11 @@ migrate create -ext sql -dir db/migrations -seq create_users_table
 migration up
 
 migrate -path db/migrations -database "url" up
+
 ```
+
+live reload server 
+go install github.com/air-verse/air@latest
+air init
+update .ari.toml file
+air
