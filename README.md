@@ -9,4 +9,18 @@ Reading Env Variable = github.com/joho/godotenv
 Postgres Driver pgx
 go get github.com/jackc/pgx/v5
 go get github.com/jackc/pgx/v5/pgxpool
+
+
+Databse Migration
+scoop bucket add main
+scoop install main/migrate
+
+
+create migration 
+
+migrate create -ext sql -dir db/migrations -seq create_users_table
+
+migration up
+
+migrate -path db/migrations -database "url" up
 ```
