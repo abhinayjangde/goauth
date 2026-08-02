@@ -1,36 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"net/http"
 
-type User struct {
-	Name  string
-	Age   int
-	Email string
-}
+	"github.com/gin-gonic/gin"
+)
 
-func (u *User) getName() {
-	fmt.Println(u.Name)
-}
-
-func (u *User) getEmail() {
-	fmt.Println(u.Email)
-}
-
-func (u *User) updateAge(age int) {
-	u.Age = age
-}
 func main() {
-	user := User{
-		Name:  "Abhi",
-		Age:   24,
-		Email: "abhi@gmail.com",
-	}
+	router := gin.Default()
 
-	user.getName()
-	user.getEmail()
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Server is running",
+		})
+	})
 
-	fmt.Println("age is", user.Age)
-	user.updateAge(45)
-
-	fmt.Println("after update age is", user.Age)
+	router.Run(":8080")
 }
