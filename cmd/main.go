@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/abhinayjangde/goauth/internal/config"
@@ -12,8 +11,6 @@ func main() {
 
 	cfg := config.LoadConfig()
 
-	fmt.Println("database url", cfg.DatabaseUrl)
-
 	router := gin.Default()
 
 	router.GET("/health", func(c *gin.Context) {
@@ -22,5 +19,5 @@ func main() {
 		})
 	})
 
-	router.Run(":8080")
+	router.Run(":" + cfg.Port)
 }
