@@ -39,3 +39,8 @@ go get golang.org/x/crypto/bcrypt
 ---
 JWT library
 go get github.com/golang-jwt/jwt/v5
+
+---
+
+request validator
+go get github.com/go-playground/validator/v10
