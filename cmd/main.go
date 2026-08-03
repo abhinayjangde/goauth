@@ -57,6 +57,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "user created successfully",

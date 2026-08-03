@@ -2,6 +2,7 @@ package respository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/abhinayjangde/goauth/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,6 +19,13 @@ func NewUserRespository(db *pgxpool.Pool) *UserRepository {
 }
 
 func (r *UserRepository) Create(user *model.User) error {
+
+	// check if user already exists
+	_, userNotFoundErr := r.FindByEmail(user.Email)
+	if userNotFoundErr == nil {
+		return fmt.Errorf("user with email %s already exists", user.Email)
+	}
+
 	query := `
 		INSERT INTO users(name, email, password)
 		VALUES($1,$2,$3)
