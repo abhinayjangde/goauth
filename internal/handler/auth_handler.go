@@ -73,3 +73,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		"token":   token,
 	})
 }
+
+func (h *AuthHandler) Profile(c *gin.Context) {
+
+	userId, _ := c.Get("user_id")
+	email, _ := c.Get("email")
+
+	c.JSON(http.StatusOK, gin.H{
+		"user_id": userId,
+		"email":   email,
+	})
+}
