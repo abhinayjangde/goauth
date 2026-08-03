@@ -36,11 +36,11 @@ func main() {
 			})
 		}
 
-		shortVersion := strings.Join(strings.Split(version, " ")[:2], " ")
+		version = strings.Join(strings.Split(version, " ")[:2], " ")
 
 		c.JSON(http.StatusOK, gin.H{
 			"message":         "Server is running",
-			"postgresVersion": shortVersion,
+			"postgresVersion": version,
 		})
 	})
 
