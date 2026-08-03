@@ -4,18 +4,22 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/abhinayjangde/goauth/internal/config"
 	"github.com/abhinayjangde/goauth/internal/model"
 	"github.com/abhinayjangde/goauth/internal/respository"
+	"github.com/abhinayjangde/goauth/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
 	repo *respository.UserRepository
+	cfg  *config.Config
 }
 
-func NewUserService(repo *respository.UserRepository) *UserService {
+func NewUserService(repo *respository.UserRepository, cfg *config.Config) *UserService {
 	return &UserService{
 		repo: repo,
+		cfg:  cfg,
 	}
 }
 
@@ -71,18 +75,18 @@ func (s *UserService) Register(req *model.RegisterRequest) error {
 	return s.repo.Create(user)
 }
 
-func (s *UserService) Login(req *model.LoginRequest) (*model.User, error) {
+func (s *UserService) Login(req *model.LoginRequest) (string, error) {
 	if req.Email == "" {
-		return nil, errors.New("email is required")
+		return "", errors.New("email is required")
 	}
 
 	if req.Password == "" {
-		return nil, errors.New("password is required")
+		return "", errors.New("password is required")
 	}
 	user, err := s.repo.FindByEmail(req.Email)
 
 	if err != nil {
-		return nil, errors.New("invalid email or password")
+		return "", errors.New("invalid email or password")
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -91,8 +95,18 @@ func (s *UserService) Login(req *model.LoginRequest) (*model.User, error) {
 	)
 
 	if err != nil {
-		return nil, errors.New("invalid email or password")
+		return "", errors.New("invalid email or password")
 	}
 
-	return user, nil
+	token, err := utils.GenerateToken(
+		user.ID,
+		user.Email,
+		s.cfg.JwtSecret,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

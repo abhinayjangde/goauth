@@ -29,7 +29,7 @@ func main() {
 	defer db.Close()
 
 	repo := respository.NewUserRespository(db)
-	service := service.NewUserService(repo)
+	service := service.NewUserService(repo, cfg)
 	authHandler := handler.NewAuthHandler(service)
 	routes.SetupRoutes(router, authHandler)
 

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/abhinayjangde/goauth/internal/model"
@@ -58,7 +57,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Login(&req)
+	token, err := h.service.Login(&req)
 
 	if err != nil {
 
@@ -70,6 +69,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("Welcome back %s", user.Name),
+		"message": "Login successful",
+		"token":   token,
 	})
 }

@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	DatabaseUrl string
-	JwtSecret   string
-	Port        string
+	DatabaseUrl    string
+	JwtSecret      string
+	Port           string
+	JWTExpireHours string
 }
 
 func LoadConfig() *Config {
@@ -21,8 +22,9 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		DatabaseUrl: os.Getenv("DATABASE_URL"),
-		JwtSecret:   os.Getenv("JWT_SECRET"),
-		Port:        os.Getenv("PORT"),
+		DatabaseUrl:    os.Getenv("DATABASE_URL"),
+		JwtSecret:      os.Getenv("JWT_SECRET"),
+		Port:           os.Getenv("PORT"),
+		JWTExpireHours: os.Getenv("JWT_EXPIRE_HOURS"),
 	}
 }

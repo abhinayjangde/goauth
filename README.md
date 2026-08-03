@@ -35,3 +35,7 @@ air
 ---
 password hashing
 go get golang.org/x/crypto/bcrypt
+
+---
+JWT library
+go get github.com/golang-jwt/jwt/v5
