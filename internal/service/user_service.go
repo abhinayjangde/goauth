@@ -72,7 +72,13 @@ func (s *UserService) Register(req *model.RegisterRequest) error {
 }
 
 func (s *UserService) Login(req *model.LoginRequest) (*model.User, error) {
+	if req.Email == "" {
+		return nil, errors.New("email is required")
+	}
 
+	if req.Password == "" {
+		return nil, errors.New("password is required")
+	}
 	user, err := s.repo.FindByEmail(req.Email)
 
 	if err != nil {
