@@ -16,22 +16,24 @@ import (
 
 func main() {
 
+	// env
 	cfg := config.LoadConfig()
+	router := gin.Default()
+
+	// database connection
 	db, err := database.New(cfg.DatabaseUrl)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer db.Close()
-
-	router := gin.Default()
 
 	repo := respository.NewUserRespository(db)
 	service := service.NewUserService(repo)
 	authHandler := handler.NewAuthHandler(service)
 	routes.SetupRoutes(router, authHandler)
 
+	// health endpoint
 	router.GET("/health", func(c *gin.Context) {
 		version, err := database.CheckConnection(db)
 
@@ -49,5 +51,6 @@ func main() {
 		})
 	})
 
+	// start server
 	router.Run(":" + cfg.Port)
 }
