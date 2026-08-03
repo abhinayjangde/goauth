@@ -7,8 +7,10 @@ import (
 
 	"github.com/abhinayjangde/goauth/internal/config"
 	"github.com/abhinayjangde/goauth/internal/database"
-	"github.com/abhinayjangde/goauth/internal/model"
+	"github.com/abhinayjangde/goauth/internal/handler"
 	"github.com/abhinayjangde/goauth/internal/respository"
+	"github.com/abhinayjangde/goauth/internal/service"
+	"github.com/abhinayjangde/goauth/routes"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,9 +25,12 @@ func main() {
 
 	defer db.Close()
 
-	repo := respository.NewUserRespository(db)
-
 	router := gin.Default()
+
+	repo := respository.NewUserRespository(db)
+	service := service.NewUserService(repo)
+	authHandler := handler.NewAuthHandler(service)
+	routes.SetupRoutes(router, authHandler)
 
 	router.GET("/health", func(c *gin.Context) {
 		version, err := database.CheckConnection(db)
@@ -42,27 +47,6 @@ func main() {
 			"message":         "Server is running",
 			"postgresVersion": version,
 		})
-	})
-
-	router.POST("/api/users", func(c *gin.Context) {
-		user := &model.User{
-			Name:     "Abhi",
-			Email:    "abhi@gmail.com",
-			Password: "abhi1234",
-		}
-
-		err := repo.Create(user)
-
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "user created successfully",
-		})
-
 	})
 
 	router.Run(":" + cfg.Port)

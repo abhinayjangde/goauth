@@ -31,3 +31,7 @@ go install github.com/air-verse/air@latest
 air init
 update .ari.toml file
 air
+
+---
+password hashing
+go get golang.org/x/crypto/bcrypt
