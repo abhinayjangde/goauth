@@ -4,8 +4,9 @@ import (
 	"net/http"
 
 	"github.com/abhinayjangde/goauth/internal/model"
+	"github.com/abhinayjangde/goauth/internal/response"
 	"github.com/abhinayjangde/goauth/internal/service"
-	"github.com/abhinayjangde/goauth/internal/utils"
+	"github.com/abhinayjangde/goauth/internal/validator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,30 +25,33 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	var req model.RegisterRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request",
-		})
+		response.Error(
+			c,
+			http.StatusBadRequest,
+			"validation failed",
+			validator.FormatErrors(err),
+		)
 		return
 	}
 
 	err := h.service.Register(&req)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "Validation failed",
-			"errors":  utils.FormatValidationErrors(err),
-		})
+		response.Error(
+			c,
+			http.StatusBadRequest,
+			"validation failed",
+			validator.FormatErrors(err),
+		)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "User registered successfully",
-		"user": map[string]any{
-			"name":  req.Name,
-			"email": req.Email,
-		},
-	})
+	response.Success(
+		c,
+		http.StatusCreated,
+		"User registered successfully",
+		nil,
+	)
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -89,9 +93,7 @@ func (h *AuthHandler) Profile(c *gin.Context) {
 	})
 }
 
-func (h *AuthHandler) Refresh(
-	c *gin.Context,
-) {
+func (h *AuthHandler) Refresh(c *gin.Context) {
 
 	var req model.RefreshRequest
 
