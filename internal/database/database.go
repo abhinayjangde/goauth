@@ -9,19 +9,19 @@ import (
 
 func New(databaseURL string) (*pgxpool.Pool, error) {
 
-	poop, err := pgxpool.New(context.Background(), databaseURL)
+	pool, err := pgxpool.New(context.Background(), databaseURL)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if err := poop.Ping(context.Background()); err != nil {
+	if err := pool.Ping(context.Background()); err != nil {
 		return nil, err
 	}
 
 	log.Println("Database Connected Successfully")
 
-	return poop, nil
+	return pool, nil
 }
 
 func CheckConnection(pool *pgxpool.Pool) (string, error) {
