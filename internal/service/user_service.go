@@ -70,3 +70,23 @@ func (s *UserService) Register(req *model.RegisterRequest) error {
 	// Save the user to the database
 	return s.repo.Create(user)
 }
+
+func (s *UserService) Login(req *model.LoginRequest) (*model.User, error) {
+
+	user, err := s.repo.FindByEmail(req.Email)
+
+	if err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.Password),
+		[]byte(req.Password),
+	)
+
+	if err != nil {
+		return nil, errors.New("invalid email or password")
+	}
+
+	return user, nil
+}
