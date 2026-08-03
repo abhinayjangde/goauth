@@ -7,21 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(router *gin.Engine, auth *handler.AuthHandler) {
+func SetupRoutes(router *gin.Engine, auth *handler.AuthHandler, cfg *config.Config) {
 
-	api := router.Group("/api/auth")
+	api := router.Group("/api")
 
-	{
-		api.POST("/register", auth.Register)
-		api.POST("/login", auth.Login)
-	}
+	authGroup := api.Group("/auth")
 
-	protected := router.Group("/api")
+	authGroup.POST("/register", auth.Register)
+	authGroup.POST("/login", auth.Login)
+	authGroup.POST("/refresh", auth.Refresh)
+
+	protected := api.Group("/")
 	protected.Use(
-		middleware.AuthMiddleware(config.LoadConfig().JwtSecret),
+		middleware.AuthMiddleware(cfg.JwtSecret),
 	)
-	protected.GET(
-		"/profile",
-		auth.Profile,
-	)
+
+	protected.GET("/profile", auth.Profile)
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/abhinayjangde/goauth/internal/config"
 	"github.com/abhinayjangde/goauth/internal/model"
@@ -12,14 +13,16 @@ import (
 )
 
 type UserService struct {
-	repo *respository.UserRepository
-	cfg  *config.Config
+	repo        *respository.UserRepository
+	cfg         *config.Config
+	refreshRepo *respository.RefreshTokenRepository
 }
 
-func NewUserService(repo *respository.UserRepository, cfg *config.Config) *UserService {
+func NewUserService(repo *respository.UserRepository, cfg *config.Config, refreshRepo *respository.RefreshTokenRepository) *UserService {
 	return &UserService{
-		repo: repo,
-		cfg:  cfg,
+		repo:        repo,
+		cfg:         cfg,
+		refreshRepo: refreshRepo,
 	}
 }
 
@@ -75,18 +78,18 @@ func (s *UserService) Register(req *model.RegisterRequest) error {
 	return s.repo.Create(user)
 }
 
-func (s *UserService) Login(req *model.LoginRequest) (string, error) {
+func (s *UserService) Login(req *model.LoginRequest) (*model.LoginResponse, error) {
 	if req.Email == "" {
-		return "", errors.New("email is required")
+		return nil, errors.New("email is required")
 	}
 
 	if req.Password == "" {
-		return "", errors.New("password is required")
+		return nil, errors.New("password is required")
 	}
 	user, err := s.repo.FindByEmail(req.Email)
 
 	if err != nil {
-		return "", errors.New("invalid email or password")
+		return nil, errors.New("invalid email or password")
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -95,18 +98,88 @@ func (s *UserService) Login(req *model.LoginRequest) (string, error) {
 	)
 
 	if err != nil {
-		return "", errors.New("invalid email or password")
+		return nil, errors.New("invalid email or password")
 	}
 
-	token, err := utils.GenerateToken(
+	accessToken, err := utils.GenerateToken(
 		user.ID,
 		user.Email,
 		s.cfg.JwtSecret,
 	)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	refreshToken, err := utils.GenerateRefreshToken()
+	if err != nil {
+		return nil, err
+	}
+
+	newToken := &model.RefreshToken{
+		UserId:    user.ID,
+		Token:     refreshToken,
+		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+	}
+
+	if err := s.refreshRepo.Save(newToken); err != nil {
+		return nil, err
+	}
+
+	return &model.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+func (s *UserService) Refresh(
+	req *model.RefreshRequest,
+) (*model.LoginResponse, error) {
+	rt, err := s.refreshRepo.Find(req.RefreshToken)
+
+	if err != nil {
+		return nil, errors.New("invalid refresh token")
+	}
+
+	if time.Now().After(rt.ExpiresAt) {
+
+		s.refreshRepo.Delete(req.RefreshToken)
+
+		return nil,
+			errors.New("refresh token expired")
+	}
+
+	err = s.refreshRepo.Delete(req.RefreshToken)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.repo.GetByID(rt.UserId)
+	if err != nil {
+		return nil, err
+	}
+	accessToken, err := utils.GenerateToken(
+		user.ID,
+		user.Email,
+		s.cfg.JwtSecret,
+	)
+
+	refreshToken, err := utils.GenerateRefreshToken()
+
+	newToken := &model.RefreshToken{
+		UserId: user.ID,
+		Token:  refreshToken,
+		ExpiresAt: time.Now().
+			Add(7 * 24 * time.Hour),
+	}
+
+	err = s.refreshRepo.Save(newToken)
+
+	return &model.LoginResponse{
+
+		AccessToken: accessToken,
+
+		RefreshToken: refreshToken,
+	}, nil
 }

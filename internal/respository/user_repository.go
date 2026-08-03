@@ -69,3 +69,38 @@ func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 
 	return user, nil
 }
+
+func (r *UserRepository) GetByID(id int64) (*model.User, error) {
+	query := `
+		SELECT
+			id,
+			name,
+			email,
+			password,
+			created_at,
+			updated_at
+		FROM users
+		WHERE id=$1
+	`
+
+	user := &model.User{}
+
+	err := r.db.QueryRow(
+		context.Background(),
+		query,
+		id,
+	).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}

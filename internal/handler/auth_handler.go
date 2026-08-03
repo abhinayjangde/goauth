@@ -57,7 +57,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.service.Login(&req)
+	res, err := h.service.Login(&req)
 
 	if err != nil {
 
@@ -69,8 +69,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
-		"token":   token,
+		"message":       "Login successful",
+		"access_token":  res.AccessToken,
+		"refresh_token": res.RefreshToken,
 	})
 }
 
@@ -83,4 +84,34 @@ func (h *AuthHandler) Profile(c *gin.Context) {
 		"user_id": userId,
 		"email":   email,
 	})
+}
+
+func (h *AuthHandler) Refresh(
+	c *gin.Context,
+) {
+
+	var req model.RefreshRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid request",
+		})
+
+		return
+	}
+
+	res, err := h.service.Refresh(&req)
+
+	if err != nil {
+
+		c.JSON(http.StatusUnauthorized,
+			gin.H{
+				"error": err.Error(),
+			})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }

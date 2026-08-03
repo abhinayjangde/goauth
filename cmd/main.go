@@ -29,9 +29,10 @@ func main() {
 	defer db.Close()
 
 	repo := respository.NewUserRespository(db)
-	service := service.NewUserService(repo, cfg)
+	refreshRepo := respository.NewRefreshTokenRepository(db)
+	service := service.NewUserService(repo, cfg, refreshRepo)
 	authHandler := handler.NewAuthHandler(service)
-	routes.SetupRoutes(router, authHandler)
+	routes.SetupRoutes(router, authHandler, cfg)
 
 	// health endpoint
 	router.GET("/health", func(c *gin.Context) {
