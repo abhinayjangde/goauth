@@ -5,6 +5,7 @@ import (
 
 	"github.com/abhinayjangde/goauth/internal/model"
 	"github.com/abhinayjangde/goauth/internal/service"
+	"github.com/abhinayjangde/goauth/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,7 +34,9 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"success": false,
+			"message": "Validation failed",
+			"errors":  utils.FormatValidationErrors(err),
 		})
 		return
 	}

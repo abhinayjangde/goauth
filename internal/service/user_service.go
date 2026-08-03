@@ -2,13 +2,13 @@ package service
 
 import (
 	"errors"
-	"strings"
 	"time"
 
 	"github.com/abhinayjangde/goauth/internal/config"
 	"github.com/abhinayjangde/goauth/internal/model"
 	"github.com/abhinayjangde/goauth/internal/respository"
 	"github.com/abhinayjangde/goauth/internal/utils"
+	"github.com/abhinayjangde/goauth/internal/validator"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,30 +28,14 @@ func NewUserService(repo *respository.UserRepository, cfg *config.Config, refres
 
 func (s *UserService) Register(req *model.RegisterRequest) error {
 
-	// Validate the request
-	// TODO: Move this validation to a separate function
-	if req.Name == "" {
-		return errors.New("name is required")
-	}
+	err := validator.Validate.Struct(req)
 
-	if req.Email == "" {
-		return errors.New("email is required")
-	}
-
-	if strings.Contains(req.Email, "@") == false {
-		return errors.New("invalid email")
-	}
-
-	if req.Password == "" {
-		return errors.New("password is required")
-	}
-
-	if len(req.Password) < 6 {
-		return errors.New("password must be at least 6 characters long")
+	if err != nil {
+		return err
 	}
 
 	// Check if the email already exists
-	_, err := s.repo.FindByEmail(req.Email)
+	_, err = s.repo.FindByEmail(req.Email)
 
 	if err == nil {
 		return errors.New("email already exists")
@@ -79,12 +63,9 @@ func (s *UserService) Register(req *model.RegisterRequest) error {
 }
 
 func (s *UserService) Login(req *model.LoginRequest) (*model.LoginResponse, error) {
-	if req.Email == "" {
-		return nil, errors.New("email is required")
-	}
-
-	if req.Password == "" {
-		return nil, errors.New("password is required")
+	err := validator.Validate.Struct(req)
+	if err != nil {
+		return nil, err
 	}
 	user, err := s.repo.FindByEmail(req.Email)
 
@@ -132,9 +113,7 @@ func (s *UserService) Login(req *model.LoginRequest) (*model.LoginResponse, erro
 	}, nil
 }
 
-func (s *UserService) Refresh(
-	req *model.RefreshRequest,
-) (*model.LoginResponse, error) {
+func (s *UserService) Refresh(req *model.RefreshRequest) (*model.LoginResponse, error) {
 	rt, err := s.refreshRepo.Find(req.RefreshToken)
 
 	if err != nil {
@@ -156,9 +135,11 @@ func (s *UserService) Refresh(
 	}
 
 	user, err := s.repo.GetByID(rt.UserId)
+
 	if err != nil {
 		return nil, err
 	}
+
 	accessToken, err := utils.GenerateToken(
 		user.ID,
 		user.Email,
@@ -168,18 +149,15 @@ func (s *UserService) Refresh(
 	refreshToken, err := utils.GenerateRefreshToken()
 
 	newToken := &model.RefreshToken{
-		UserId: user.ID,
-		Token:  refreshToken,
-		ExpiresAt: time.Now().
-			Add(7 * 24 * time.Hour),
+		UserId:    user.ID,
+		Token:     refreshToken,
+		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
 	}
 
 	err = s.refreshRepo.Save(newToken)
 
 	return &model.LoginResponse{
-
-		AccessToken: accessToken,
-
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
