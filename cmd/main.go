@@ -49,6 +49,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"message":         "Server is running",
 			"postgresVersion": version,
+			"status":"ok",
 		})
 	})
 

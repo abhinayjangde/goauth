@@ -89,7 +89,8 @@ sudo ln -s \
 /etc/nginx/sites-available/goauth \
 /etc/nginx/sites-enabled/
 
-sudo rm /etc/nginx/sites-enabled/default # remove default
+# remove default
+sudo rm /etc/nginx/sites-enabled/default 
 # restart
 sudo nginx -t
 sudo systemctl restart nginx
