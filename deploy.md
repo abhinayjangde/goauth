@@ -22,7 +22,7 @@ create .env file
 ```bash
 
 go mod tidy # installing dependencies
-go build -0 goauth ./cmd
+go build -o goauth ./cmd
 
 # now we will have ./goauth binary
 # test 
