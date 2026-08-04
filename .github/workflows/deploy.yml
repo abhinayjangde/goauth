@@ -36,7 +36,7 @@ jobs:
       - name: Build Binary
         run: |
           mkdir dist
-          go build -o dist/goauth ./cmd
+          go build -o goauth ./cmd
 
       - name: Upload Binary
         uses: appleboy/scp-action@v1
