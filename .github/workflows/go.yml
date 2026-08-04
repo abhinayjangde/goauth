@@ -23,4 +23,7 @@ jobs:
 
       - name: Download Dependencies
         run: go mod tidy
+
+      - name: Build Application
+        run: go build -o goauth ./cmd
      
