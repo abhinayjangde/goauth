@@ -115,8 +115,6 @@ sudo certbot --nginx
 
 ```
 
-
-
 ## from ci/cd
 
       - name: Create .env
