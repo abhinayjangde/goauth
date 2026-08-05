@@ -26,15 +26,6 @@ jobs:
       - name: Download Dependencies
         run: go mod tidy
 
-      - name: Create .env
-        run: |
-          cat > .env << EOF
-          PORT=${{ secrets.PORT }}
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          JWT_EXPIRE_HOURS=${{ secrets.JWT_EXPIRE_HOURS }}
-          EOF
-
       - name: Build Binary
         run: |
           go build -o goauth ./cmd

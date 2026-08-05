@@ -38,7 +38,8 @@ sudo nano /etc/systemd/system/goauth.service
 
 # past this conent to 'goauth.service` file
 
-`[Unit]
+`
+[Unit]
 Description=GoAuth API
 After=network.target
 
@@ -71,7 +72,8 @@ sudo nano /etc/nginx/sites-available/goauth
 
 # paste this content
 
-`server {
+`
+server {
     listen 80;
     server_name _;
     location / {
@@ -112,3 +114,16 @@ You can access your api at http://EC2_IP:/health
 sudo certbot --nginx
 
 ```
+
+
+
+## from ci/cd
+
+      - name: Create .env
+        run: |
+          cat > .env << EOF
+          PORT=${{ secrets.PORT }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          JWT_EXPIRE_HOURS=${{ secrets.JWT_EXPIRE_HOURS }}
+          EOF
