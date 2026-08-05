@@ -50,7 +50,6 @@ func main() {
 			"message":         "Server is running",
 			"postgresVersion": version,
 			"status":          "ok",
-			"author":          "Hello, I am Abhinay Jangde",
 		})
 	})
 
