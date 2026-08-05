@@ -26,18 +26,9 @@ jobs:
       - name: Download Dependencies
         run: go mod tidy
 
-      - name: Create .env
-        run: |
-          cat > .env << EOF
-          PORT=${{ secrets.PORT }}
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          JWT_EXPIRE_HOURS=${{ secrets.JWT_EXPIRE_HOURS }}
-          EOF
-
       - name: Build Binary
         run: |
-          go build -o dist/goauth ./cmd
+          go build -o goauth ./cmd
 
       - name: Upload Binary
         uses: appleboy/scp-action@v1
@@ -45,7 +36,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "dist/goauth"
+          source: "./"
           target: "/home/ubuntu/goauth/"
 
       - name: Restart Service
